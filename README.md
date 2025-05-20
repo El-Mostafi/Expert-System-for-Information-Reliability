@@ -36,50 +36,48 @@ Each piece of information is evaluated based on the following weighted criteria:
 
 ```prolog
 ?- evaluate_info("transition_energy_morocco", Credibility, S1, S2, S3, S4, Total, Explanation).
-Output: Credibility = "Credible" with individual scores and detailed explanation.
+```
 
-📁 Knowledge Base Overview
-source/2: Information sources and their credibility levels
+## Output
+**Credibility = "Credible"** with individual scores and detailed explanation.
 
-author/2: Authors and their reputation
+---
 
-uses_style/2: Writing styles (formal, biased, etc.)
+## 📁 Knowledge Base Overview
+- `source/2`: Information sources and their credibility levels  
+- `author/2`: Authors and their reputation  
+- `uses_style/2`: Writing styles (formal, biased, etc.)  
+- `has_references/1`: Whether the author includes references  
+- `source_provides/3`: Mapping between authors, sources, and information  
+- `has_citations/2`: Citation count for each information item  
+- `emotional_language/2`: Emotional content of the text  
+- `information/2`: Info ID and titles  
 
-has_references/1: Whether the author includes references
+Scoring logic based on weighted rules.
 
-source_provides/3: Mapping between authors, sources, and information
+---
 
-has_citations/2: Citation count for each information item
+## 🚀 Technologies Used
+- **Prolog** – Core expert system logic (SWI-Prolog)  
+- **Node.js** – Backend API connecting the frontend and Prolog  
+- **React.js** – Frontend interface for user interaction  
+- **Express.js** – Web server for handling Prolog queries  
 
-emotional_language/2: Emotional content of the text
+---
 
-information/2: Info ID and titles
+## 🧪 How to Use
+1. Clone the repository.  
+2. Start the backend server (Node.js + SWI-Prolog integration).  
+3. Run the frontend (React).  
+4. Interact with the system through the website:  
+   - Enter information details  
+   - Submit evaluation request  
+   - View scoring and result  
 
-Scoring logic based on weighted rules
+---
 
-🚀 Technologies Used
-Prolog – Core expert system logic (SWI-Prolog)
-
-Node.js – Backend API connecting the frontend and Prolog
-
-React.js – Frontend interface for user interaction
-
-Express.js – Web server for handling Prolog queries
-
-🧪 How to Use
-Clone the repository.
-
-Start the backend server (Node.js + SWI-Prolog integration).
-
-Run the frontend (React).
-
-Interact with the system through the website:
-
-Enter information details
-
-Submit evaluation request
-
-View scoring and result
-
-👨‍🎓 Authors
-Developed by students of ENSA Fès as part of the Knowledge-Based Systems module.
+## 👨‍🎓 Authors
+Developed by :
+- **Mohamed EL Mostafi**  
+- **Mohamed El Hasnaoui**
+- **Oussama Lamrabet**  
