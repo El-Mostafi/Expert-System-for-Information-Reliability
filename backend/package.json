@@ -15,6 +15,6 @@
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^3.0.1"
   }
 }
