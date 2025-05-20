@@ -7,7 +7,7 @@ import CriteriaScore from '../components/CriteriaScore';
 
 export interface EvaluationResult {
   informationText: string;
-  reliability: 'suspecte' | 'douteuse' | 'crédible';
+  reliability: 'Suspecte' | 'Douteuse' | 'Crédible';
   globalScore: number;
   criteria: {
     scoreSource: number;
@@ -44,22 +44,22 @@ const ResultsPage: React.FC = () => {
   
   const getReliabilityIcon = () => {
     switch (results.reliability) {
-      case 'suspecte':
+      case 'Suspecte':
         return <AlertTriangle className="w-8 h-8 text-red-500" />;
-      case 'douteuse':
+      case 'Douteuse':
         return <Shield className="w-8 h-8 text-amber-500" />;
-      case 'crédible':
+      case 'Crédible':
         return <CheckCircle className="w-8 h-8 text-green-500" />;
     }
   };
   
   const getReliabilityClass = () => {
     switch (results.reliability) {
-      case 'suspecte':
+      case 'Suspecte':
         return 'bg-red-100 text-red-800 border-red-200';
-      case 'douteuse':
+      case 'Douteuse':
         return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'crédible':
+      case 'Crédible':
         return 'bg-green-100 text-green-800 border-green-200';
     }
   };
@@ -102,7 +102,7 @@ const ResultsPage: React.FC = () => {
             
             <div className="flex-1">
               <div className="rounded-lg p-4 border border-slate-200 bg-slate-50">
-                <h3 className="font-semibold text-lg mb-2">Score global</h3>
+                <h3 className="font-semibold text-lg mb-2">Score global :  {results.globalScore}% </h3>
                 <ScoreBar score={results.globalScore} large />
               </div>
             </div>

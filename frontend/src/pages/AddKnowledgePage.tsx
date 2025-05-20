@@ -1,72 +1,137 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, User, FileText, Calendar, Save, RefreshCw } from 'lucide-react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { addInformation } from '../services/api';
 
+// Interface adaptée au nouveau format de données
 interface FormData {
-  title: string;
+  source: string;
+  fiabilite: 'fiable' | 'moyenne' | 'non_fiable';
+  auteur: string;
+  reputation: 'reconnu' | 'inconnu' | 'anonyme';
+  references: boolean;
+  style: 'neutre' | 'emotionnel' | 'technique'| 'familier' | 'darija';
+  info: string;
+  citations: number;
+  emotion: number;
   description: string;
-  sourceType: 'fiable' | 'moyenne' | 'non_fiable';
-  authorName: string;
-  authorReputation: 'Reconnu' | 'Inconnu' | 'Anonyme';
-  hasReferences: 'Oui' | 'Non';
-  citationCount: number;
-  emotionalLevel: number;
-  publicationDate: string;
+}
+
+interface FormErrors {
+  [key: string]: string;
 }
 
 const AddKnowledgePage: React.FC = () => {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
-    sourceType: 'moyenne',
-    authorName: '',
-    authorReputation: 'Inconnu',
-    hasReferences: 'Non',
-    citationCount: 0,
-    emotionalLevel: 5,
-    publicationDate: '',
+    source: '',
+    fiabilite: 'moyenne',
+    auteur: '',
+    reputation: 'inconnu',
+    references: false,
+    style: 'neutre',
+    info: '',
+    citations: 0,
+    emotion: 5,
+    description: ''
   });
 
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!formData.info.trim()) {
+      newErrors.info = "Le titre de l'information est requis";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'La description est requise';
+    }
+
+    if (!formData.source.trim()) {
+      newErrors.source = 'La source est requise';
+    }
+
+    if (!formData.auteur.trim()) {
+      newErrors.auteur = "Le nom de l'auteur est requis";
+    }
+
+    if (formData.citations < 0) {
+      newErrors.citations = 'Le nombre de citations ne peut pas être négatif';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    
+    // Pour gérer le cas spécial des checkbox (references)
+    if (type === 'checkbox') {
+      const checkbox = e.target as HTMLInputElement;
+      setFormData(prev => ({ ...prev, [name]: checkbox.checked }));
+    } else {
+      // Pour les autres types de champs
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+    
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleReset = () => {
     setFormData({
-      title: '',
-      description: '',
-      sourceType: 'moyenne',
-      authorName: '',
-      authorReputation: 'Inconnu',
-      hasReferences: 'Non',
-      citationCount: 0,
-      emotionalLevel: 5,
-      publicationDate: '',
+      source: '',
+      fiabilite: 'moyenne',
+      auteur: '',
+      reputation: 'inconnu',
+      references: false,
+      style: 'neutre',
+      info: '',
+      citations: 0,
+      emotion: 5,
+      description: ''
     });
     setMessage(null);
+    setErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      setMessage({
+        type: 'error',
+        text: 'Veuillez corriger les erreurs dans le formulaire',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage(null);
 
     try {
-      // Simulated API call
-      await axios.post('/api/add-knowledge', formData);
+      const result = await addInformation(formData);
+      
+      // Store the evaluation results
+      sessionStorage.setItem('evaluationResults', JSON.stringify(result));
+      
       setMessage({
         type: 'success',
-        text: 'Information ajoutée avec succès à la base de connaissances',
+        text: 'Information ajoutée avec succès. Redirection vers les résultats...',
       });
-      handleReset();
+      
+      // Redirect to results page after a short delay
+        navigate('/results');
     } catch (error) {
       setMessage({
         type: 'error',
-        text: 'Erreur lors de l\'ajout de l\'information',
+        text: error instanceof Error ? error.message : "Erreur lors de l'ajout de l'information. Veuillez réessayer.",
       });
     } finally {
       setIsSubmitting(false);
@@ -108,19 +173,21 @@ const AddKnowledgePage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="title" className="form-label">
+                <label htmlFor="info" className="form-label">
                   Titre de l'information
                 </label>
                 <input
                   type="text"
-                  id="title"
-                  name="title"
-                  required
-                  value={formData.title}
+                  id="info"
+                  name="info"
+                  value={formData.info}
                   onChange={handleChange}
-                  className="form-input"
+                  className={`form-input ${errors.info ? 'border-red-500' : ''}`}
                   placeholder="Entrez le titre..."
                 />
+                {errors.info && (
+                  <p className="mt-1 text-sm text-red-600">{errors.info}</p>
+                )}
               </div>
 
               <div>
@@ -133,9 +200,12 @@ const AddKnowledgePage: React.FC = () => {
                   rows={4}
                   value={formData.description}
                   onChange={handleChange}
-                  className="form-input"
+                  className={`form-input ${errors.description ? 'border-red-500' : ''}`}
                   placeholder="Décrivez l'information..."
                 />
+                {errors.description && (
+                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+                )}
               </div>
             </div>
           </div>
@@ -147,21 +217,41 @@ const AddKnowledgePage: React.FC = () => {
               <h2 className="text-xl font-semibold">Source</h2>
             </div>
 
-            <div>
-              <label htmlFor="sourceType" className="form-label">
-                Type de source
-              </label>
-              <select
-                id="sourceType"
-                name="sourceType"
-                value={formData.sourceType}
-                onChange={handleChange}
-                className="form-input"
-              >
-                <option value="fiable">Fiable</option>
-                <option value="moyenne">Moyenne</option>
-                <option value="non_fiable">Non fiable</option>
-              </select>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="source" className="form-label">
+                  Source
+                </label>
+                <input
+                  type="text"
+                  id="source"
+                  name="source"
+                  value={formData.source}
+                  onChange={handleChange}
+                  className={`form-input ${errors.source ? 'border-red-500' : ''}`}
+                  placeholder="exemple.com"
+                />
+                {errors.source && (
+                  <p className="mt-1 text-sm text-red-600">{errors.source}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="fiabilite" className="form-label">
+                  Fiabilité
+                </label>
+                <select
+                  id="fiabilite"
+                  name="fiabilite"
+                  value={formData.fiabilite}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="fiable">Fiable</option>
+                  <option value="moyenne">Moyenne</option>
+                  <option value="non_fiable">Non fiable</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -174,52 +264,52 @@ const AddKnowledgePage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="authorName" className="form-label">
+                <label htmlFor="auteur" className="form-label">
                   Nom de l'auteur
                 </label>
                 <input
                   type="text"
-                  id="authorName"
-                  name="authorName"
-                  required
-                  value={formData.authorName}
+                  id="auteur"
+                  name="auteur"
+                  value={formData.auteur}
                   onChange={handleChange}
-                  className="form-input"
+                  className={`form-input ${errors.auteur ? 'border-red-500' : ''}`}
                   placeholder="Nom de l'auteur..."
                 />
+                {errors.auteur && (
+                  <p className="mt-1 text-sm text-red-600">{errors.auteur}</p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="authorReputation" className="form-label">
+                <label htmlFor="reputation" className="form-label">
                   Réputation
                 </label>
                 <select
-                  id="authorReputation"
-                  name="authorReputation"
-                  value={formData.authorReputation}
+                  id="reputation"
+                  name="reputation"
+                  value={formData.reputation}
                   onChange={handleChange}
                   className="form-input"
                 >
-                  <option value="Reconnu">Reconnu</option>
-                  <option value="Inconnu">Inconnu</option>
-                  <option value="Anonyme">Anonyme</option>
+                  <option value="reconnu">Reconnu</option>
+                  <option value="inconnu">Inconnu</option>
+                  <option value="anonyme">Anonyme</option>
                 </select>
               </div>
 
-              <div>
-                <label htmlFor="hasReferences" className="form-label">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="references"
+                  name="references"
+                  checked={formData.references}
+                  onChange={handleChange}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="references" className="form-label">
                   Présence de références
                 </label>
-                <select
-                  id="hasReferences"
-                  name="hasReferences"
-                  value={formData.hasReferences}
-                  onChange={handleChange}
-                  className="form-input"
-                >
-                  <option value="Oui">Oui</option>
-                  <option value="Non">Non</option>
-                </select>
               </div>
             </div>
           </div>
@@ -233,47 +323,56 @@ const AddKnowledgePage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="citationCount" className="form-label">
+                <label htmlFor="style" className="form-label">
+                  Style d'écriture
+                </label>
+                <select
+                  id="style"
+                  name="style"
+                  value={formData.style}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="neutre">Neutre</option>
+                  <option value="emotionnel">Emotionnel</option>
+                  <option value="technique">Technique</option>
+                  <option value="familier">Familier</option>
+                  <option value="darija">Darija</option>
+
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="citations" className="form-label">
                   Nombre de citations
                 </label>
                 <input
                   type="number"
-                  id="citationCount"
-                  name="citationCount"
+                  id="citations"
+                  name="citations"
                   min="0"
-                  value={formData.citationCount}
+                  value={formData.citations}
                   onChange={handleChange}
-                  className="form-input"
+                  className={`form-input ${errors.citations ? 'border-red-500' : ''}`}
                 />
+                {errors.citations && (
+                  <p className="mt-1 text-sm text-red-600">{errors.citations}</p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="emotionalLevel" className="form-label">
-                  Niveau de langage émotionnel: {formData.emotionalLevel}
+                <label htmlFor="emotion" className="form-label">
+                  Niveau de langage émotionnel: {formData.emotion}
                 </label>
                 <input
                   type="range"
-                  id="emotionalLevel"
-                  name="emotionalLevel"
+                  id="emotion"
+                  name="emotion"
                   min="0"
                   max="10"
-                  value={formData.emotionalLevel}
+                  value={formData.emotion}
                   onChange={handleChange}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="publicationDate" className="form-label">
-                  Date de publication
-                </label>
-                <input
-                  type="date"
-                  id="publicationDate"
-                  name="publicationDate"
-                  value={formData.publicationDate}
-                  onChange={handleChange}
-                  className="form-input"
                 />
               </div>
             </div>

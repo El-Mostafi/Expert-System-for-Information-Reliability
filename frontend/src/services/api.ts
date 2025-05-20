@@ -1,58 +1,61 @@
 import axios from 'axios';
 import { EvaluationResult } from '../pages/ResultsPage';
 
-// This is a mock API function for demonstration purposes
-// In a real application, this would connect to your backend
-export const evaluateInformation = async (formData: any): Promise<EvaluationResult> => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+const API_BASE_URL = 'http://localhost:3000';
+
+export const evaluateInformation = async (formData: { informationText: string }): Promise<EvaluationResult> => {
   
-  // Mock response based on the input data
-  // In a real application, this would be the response from your Prolog-based expert system
-  const scoreSource = formData.sourceUrl ? 80 : 30;
-  const scoreAuteur = formData.hasAuthor ? 85 : 20;
-  const scoreCitations = formData.hasCitations ? 90 : 25;
-  const scoreLangage = formData.subjectiveLanguage ? 15 : 75;
-  const scoreContradiction = formData.hasContradictions ? 10 : 80;
-  
-  // Calculate global score (average of all scores)
-  const globalScore = Math.round(
-    (scoreSource + scoreAuteur + scoreCitations + scoreLangage + scoreContradiction) / 5
-  );
-  
-  // Determine reliability level based on global score
-  let reliability: 'suspecte' | 'douteuse' | 'crédible';
-  if (globalScore < 40) {
-    reliability = 'suspecte';
-  } else if (globalScore < 70) {
-    reliability = 'douteuse';
-  } else {
-    reliability = 'crédible';
-  }
-  
-  return {
-    informationText: formData.informationText,
-    reliability,
-    globalScore,
-    criteria: {
-      scoreSource,
-      scoreAuteur,
-      scoreCitations,
-      scoreLangage,
-      scoreContradiction,
-    },
-  };
+    const response = await axios.post(`${API_BASE_URL}/analyze`, {
+      text: formData.informationText
+    });
+
+    const { niveau, scoreSource, scoreAuteur, scoreCitations, scoreLangage, scoreContradiction } = response.data;
+
+    return {
+      informationText: formData.informationText,
+      reliability: niveau as 'Suspecte' | 'Douteuse' | 'Crédible',
+      globalScore: Math.round((scoreSource + scoreAuteur + scoreCitations + scoreLangage + scoreContradiction) / 5),
+      criteria: {
+        scoreSource,
+        scoreAuteur,
+        scoreCitations,
+        scoreLangage,
+        scoreContradiction,
+      }
+    };
 };
 
-// When ready to connect to a real backend, use the function below:
-/*
-export const evaluateInformation = async (formData: any): Promise<EvaluationResult> => {
+export const addInformation = async (formData: {
+  source: string;
+  fiabilite: 'fiable' | 'moyenne' | 'non_fiable';
+  auteur: string;
+  reputation: 'reconnu' | 'inconnu' | 'anonyme';
+  references: boolean;
+  style: 'neutre' | 'emotionnel' | 'technique'| 'familier' | 'darija';
+  info: string;
+  citations: number;
+  emotion: number;
+  description: string;
+}): Promise<EvaluationResult> => {
   try {
-    const response = await axios.post('/api/evaluate', formData);
-    return response.data;
+    const response = await axios.post(`${API_BASE_URL}/add-info`, formData);
+    
+    const { niveau, scoreSource, scoreAuteur, scoreCitations, scoreLangage, scoreContradiction } = response.data.resultat;
+    
+    return {
+      informationText: formData.description,
+      reliability: niveau as 'Suspecte' | 'Douteuse' | 'Crédible',
+      globalScore: Math.round((scoreSource + scoreAuteur + scoreCitations + scoreLangage + scoreContradiction) / 5),
+      criteria: {
+        scoreSource,
+        scoreAuteur,
+        scoreCitations,
+        scoreLangage,
+        scoreContradiction,
+      }
+    };
   } catch (error) {
-    console.error('Error evaluating information:', error);
+    console.error('Error adding information:', error);
     throw error;
   }
 };
-*/

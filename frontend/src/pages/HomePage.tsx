@@ -6,21 +6,21 @@ import TeamMember from '../components/TeamMember';
 const teamMembers = [
   {
     id: 1,
-    name: 'Dr. Marie Dupont',
-    role: 'Experte en IA',
-    image: 'https://images.pexels.com/photos/3746314/pexels-photo-3746314.jpeg?auto=compress&cs=tinysrgb&w=600',
+    name: 'El Mostafi Mohamed',
+    role: 'Full Stack Developer',
+    image: 'https://media.licdn.com/dms/image/v2/D4E03AQEmoq9R1BFfUA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1718210401544?e=1753315200&v=beta&t=seqFfGhPRwT_ncQA4_-Es8m80CJzEJr-pYjHvm4sxaU',
   },
   {
     id: 2,
-    name: 'Prof. Thomas Martin',
-    role: 'Spécialiste Prolog',
-    image: 'https://images.pexels.com/photos/5794945/pexels-photo-5794945.jpeg?auto=compress&cs=tinysrgb&w=600',
+    name: 'El Hasnaoui Mohamed',
+    role: 'Full Stack Developer',
+    image: 'https://media.licdn.com/dms/image/v2/D4E03AQHQy1z_XadoSw/profile-displayphoto-shrink_400_400/B4EZZagEZ4HkAg-/0/1745275081284?e=1753315200&v=beta&t=59aCH6EGm3OcxxMyQp36bUQioJQ5xPXatzkR8bk-1hE',
   },
   {
     id: 3,
-    name: 'Ing. Sophie Leclerc',
-    role: 'Analyste de Données',
-    image: 'https://images.pexels.com/photos/5715529/pexels-photo-5715529.jpeg?auto=compress&cs=tinysrgb&w=600',
+    name: 'Lamrabet Oussama',
+    role: 'Full Stack Developer',
+    image: 'https://media.licdn.com/dms/image/v2/D4D35AQF4MFnAgY0Psw/profile-framedphoto-shrink_400_400/B4DZZAMBqaGkAg-/0/1744833616881?e=1748372400&v=beta&t=0JAG2Y-kK726c9ix019hRe0RNwtALKjtFlnzQCYOYp4',
   },
 ];
 
